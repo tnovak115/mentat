@@ -17,6 +17,15 @@ export default function TabLayout() {
     }}
     >
       <Tabs.Screen
+        name="abritrage"
+        options={{
+          title: 'Arbitrage Betting',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
@@ -26,9 +35,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="about"
+        name="players"
         options={{
-          title: 'About',
+          title: 'Players',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
           ),

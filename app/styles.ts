@@ -98,6 +98,20 @@ export const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     color: '#fff',
   },
+  time: {
+    color: "#aaa",
+    fontSize: 14,
+  },
+  matchup: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  list: {
+    paddingBottom: 20,
+  },
 });
 
 export const trackingStyles = StyleSheet.create({
@@ -125,5 +139,112 @@ export const trackingStyles = StyleSheet.create({
   },
   chart: {
     borderRadius: 12,
+  },
+});
+
+export const dashStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    padding: 16,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  topCard: {
+    backgroundColor: '#1c1c1c',
+    borderRadius: 12,
+    flex: 1,
+    marginHorizontal: 4,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  cardTitle: {
+    color: '#aaa',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  profitAmount: {
+    color: '#00ff88',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  matchText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  matchTime: {
+    color: '#aaa',
+    fontSize: 14,
+  },
+  playerCard: {
+    backgroundColor: '#1c1c1c',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderColor: '#00f2ff',
+    borderWidth: 1,
+  },
+  playerName: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  playerTeam: {
+    color: '#ccc',
+    fontSize: 14,
+    marginBottom: 6,
+  },
+  statType: {
+    color: '#00f2ff',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  pieRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  pieSection: {
+    flex: 1,
+    marginRight: 10,
+  },
+  pieBar: {
+    height: 10,
+    backgroundColor: '#333',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  pieFill: {
+    height: 10,
+    borderRadius: 5,
+  },
+  pieLabel: {
+    color: '#ccc',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  gaugeContainer: {
+    height: 16,
+    backgroundColor: '#444',
+    borderRadius: 8,
+    marginTop: 10,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  gaugeBar: {
+    height: '100%',
+    backgroundColor: '#00ff88',
+  },
+  gaugeText: {
+    color: '#ccc',
+    fontSize: 12,
+    position: 'absolute',
+    left: 8,
+    top: -18,
   },
 });

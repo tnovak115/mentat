@@ -112,6 +112,49 @@ export const styles = StyleSheet.create({
   list: {
     paddingBottom: 20,
   },
+  startButton: {
+    backgroundColor: '#00f2ff',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    marginVertical: 10,
+    width: '100%',
+    alignItems: 'center',
+  },
+  secondaryButton: {
+    backgroundColor: '#00ff88',
+  },
+  buttonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+    input: {
+    width: '100%',
+    backgroundColor: '#1c1c1c',
+    color: '#fff',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  sectionTitle: {
+  color: '#aaa',
+  marginBottom: 8,
+  marginTop: 16,
+  fontWeight: '600',
+  fontSize: 16,
+  },
+
+  picker: {
+    backgroundColor: '#1c1c1c',
+    color: '#fff',
+    borderRadius: 8,
+    marginBottom: 16,
+    height: 50,
+    width: '100%',
+  },
 });
 
 export const trackingStyles = StyleSheet.create({

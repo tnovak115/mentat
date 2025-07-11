@@ -3,6 +3,10 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { styles } from './styles';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebaseConfig';
+
 const nbaTeams = [
   'Atlanta Hawks', 'Boston Celtics', 'Brooklyn Nets', 'Charlotte Hornets',
   'Chicago Bulls', 'Cleveland Cavaliers', 'Dallas Mavericks', 'Denver Nuggets',
@@ -22,14 +26,33 @@ export default function OnboardingScreen() {
   const [username, setUsername] = useState('');
   const [team, setTeam] = useState('');
 
-  const handleSubmit = () => {
-    console.log({ email, password, username, favoriteTeam: team });
-    //auth code will go here
-    router.replace('/dashboard');
+  const handleSubmit = async () => {
+    if (!email || !password || !username || !team) {
+      alert('Please fill out all fields.');
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log('1');
+      await setDoc(doc(db, 'users', user.uid), {
+        email,
+        username,
+        favoriteTeam: team,
+        createdAt: new Date(),
+      });
+      console.log('2');
+      router.replace('/dashboard');
+    } catch (error) {
+      console.log("Signup error:", error);
+    }
   };
+  console.log("⚠️ OnboardingScreen is mounted");
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}>
       <Text style={styles.title}>Create Your Account</Text>
 
       <TextInput
@@ -71,7 +94,13 @@ export default function OnboardingScreen() {
         ))}
       </Picker>
 
-      <TouchableOpacity style={styles.startButton} onPress={handleSubmit}>
+      <TouchableOpacity
+        style={styles.startButton}
+        onPress={() => {
+          console.log('Pressed Continue');
+          handleSubmit();
+        }}
+      >
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
     </ScrollView>

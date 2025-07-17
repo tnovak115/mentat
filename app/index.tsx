@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { styles } from './styles';
 import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function StartScreen() {
   const router = useRouter();
@@ -10,12 +13,31 @@ export default function StartScreen() {
 
   const handleSignUp = () => {
     router.replace('/signup')
-    // Add actual sign-up logic here
   };
 
-  const handleLogIn = () => {
-    router.replace('/dashboard')
-    // Add actual login logic here
+  const handleLogIn = async () => {
+    if(!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+    try{
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+
+      const userDocRef = doc(db, 'users', user.uid);
+      const userSnapshot = await getDoc(userDocRef);
+
+      if(userSnapshot.exists()){
+        alert("works");
+        router.replace('/dashboard');
+      }
+      else{
+        alert("no work");
+      }
+    }
+    catch (error: any){
+      alert(error);
+    }
   };
 
   return (

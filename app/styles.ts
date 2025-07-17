@@ -155,6 +155,16 @@ export const styles = StyleSheet.create({
     height: 50,
     width: '100%',
   },
+  header: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  marginVertical: 10,
+  },
+  subheader: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    color: 'gray',
+  },
 });
 
 export const trackingStyles = StyleSheet.create({

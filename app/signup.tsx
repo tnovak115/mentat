@@ -17,7 +17,6 @@ const nbaTeams = [
   'Portland Trail Blazers', 'Sacramento Kings', 'San Antonio Spurs', 'Toronto Raptors',
   'Utah Jazz', 'Washington Wizards',
 ];
-
 export default function OnboardingScreen() {
   const router = useRouter();
 
@@ -31,11 +30,9 @@ export default function OnboardingScreen() {
       alert('Please fill out all fields.');
       return;
     }
-
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log('1');
       await setDoc(doc(db, 'users', user.uid), {
         email,
         username,
@@ -45,7 +42,7 @@ export default function OnboardingScreen() {
       console.log('2');
       router.replace('/dashboard');
     } catch (error) {
-      console.log("Signup error:", error);
+      alert(error);
     }
   };
   console.log("⚠️ OnboardingScreen is mounted");

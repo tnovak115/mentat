@@ -42,7 +42,7 @@ const arbitrageData = [
     },
   },
 ];
-export default function EVScreen() {
+export default function PropScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Arbitrage Opportunities</Text>

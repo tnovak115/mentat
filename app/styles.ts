@@ -165,6 +165,22 @@ export const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: 'gray',
   },
+    matchRow: {
+    marginVertical: 8,
+  },
+  barContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  bar: {
+    height: 20,
+    borderRadius: 4,
+  },
+  pointsText: {
+    marginLeft: 8,
+    fontWeight: 'bold',
+  },
 });
 
 export const trackingStyles = StyleSheet.create({

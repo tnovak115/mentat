@@ -15,3 +15,36 @@ export async function getLast5Matchups(team: string, opponent: string) {
   }
   return data;
 }
+
+export async function getLast10Stats(player: string, stat: string){
+  const { data, error } = await supabase
+    .from('player_data')
+    .select('*')
+    .eq('PLAYER_NAME', player)
+    .eq(stat, stat)
+    .order('Date', { ascending: false })
+    .limit(10)
+    
+  if (error) {
+    alert(error)
+    return null;
+  }
+  return data;
+}
+
+export async function getLast5StatsAgainst(player: string, stat: string, opp: string){
+  const { data, error } = await supabase
+    .from('player_data')
+    .select('*')
+    .eq('PLAYER_NAME', player)
+    .eq('MATCHUP', opp)
+    .eq(stat, stat)
+    .order('Date', { ascending: false })
+    .limit(10)
+    
+  if (error) {
+    alert(error)
+    return null;
+  }
+  return data;
+}

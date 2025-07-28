@@ -16,7 +16,7 @@ export async function getLast5Matchups(team: string, opponent: string) {
   return data;
 }
 
-export async function getLast10Stats(player: string, stat: string){
+export async function getLast10Stats(player: string, stat: string): Promise<number[] | null>{
   const { data, error } = await supabase
     .from('player_data')
     .select('*')
@@ -32,7 +32,7 @@ export async function getLast10Stats(player: string, stat: string){
   return data;
 }
 
-export async function getLast5StatsAgainst(player: string, stat: string, opp: string){
+export async function getLast5StatsAgainst(player: string, stat: string, opp: string): Promise<number[] | null>{
   const { data, error } = await supabase
     .from('player_data')
     .select('*')

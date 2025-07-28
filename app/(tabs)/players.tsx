@@ -1,34 +1,47 @@
-import { FlatList, View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import {
+  FlatList,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ScrollView,
+} from 'react-native';
+import { getLast10Stats, getLast5StatsAgainst } from '../data';
 
 const players = [
   {
     id: '1',
-    name: 'Patrick Mahomes',
-    team: 'Chiefs',
+    name: 'LeBron James',
+    team: 'Lakers',
     image: 'https://via.placeholder.com/100x100',
   },
   {
     id: '2',
-    name: 'Jalen Hurts',
-    team: 'Eagles',
+    name: 'Anthony Davis',
+    team: 'Lakers',
     image: 'https://via.placeholder.com/100x100',
   },
   {
     id: '3',
-    name: 'Josh Allen',
-    team: 'Bills',
+    name: 'D\'Angelo Russell',
+    team: 'Lakers',
     image: 'https://via.placeholder.com/100x100',
   },
   {
     id: '4',
-    name: 'Justin Herbert',
-    team: 'Chargers',
+    name: 'Austin Reaves',
+    team: 'Lakers',
     image: 'https://via.placeholder.com/100x100',
   },
   {
     id: '5',
-    name: 'Lamar Jackson',
-    team: 'Ravens',
+    name: 'Jarred Vanderbilt',
+    team: 'Lakers',
     image: 'https://via.placeholder.com/100x100',
   },
 ];
@@ -39,6 +52,31 @@ const CARD_SIZE =
   (Dimensions.get('window').width - CARD_MARGIN * (NUM_COLUMNS * 2 + 2)) / NUM_COLUMNS;
 
 export default function PlayersScreen() {
+  const [selectedPlayer, setSelectedPlayer] = useState<typeof players[0] | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [useOpponent, setUseOpponent] = useState(false);
+  const [opponent, setOpponent] = useState('');
+  const [selectedStat, setSelectedStat] = useState<string | null>(null);
+  const [statValues, setStatValues] = useState<number[]>([]);
+  const [maxStat, setMaxStat] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+
+  const statOptions = ['PTS', 'REB', 'OREB', 'DREB', 'AST', 'FGM', 'FGA', 'STL', 'BLK', 'FG3M', 'FG3A'];
+
+  const fetchStatData = async (stat: string) => {
+    if (!selectedPlayer) return;
+    setLoading(true);
+    setSelectedStat(stat);
+
+    const values = await (useOpponent
+      ? getLast5StatsAgainst(selectedPlayer.name, stat, opponent)
+      : getLast10Stats(selectedPlayer.name, stat)) ?? [];
+
+    setStatValues(values);
+    setMaxStat(Math.max(...values, 1));
+    setLoading(false);
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -47,13 +85,71 @@ export default function PlayersScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => {
+              setSelectedPlayer(item);
+              setModalVisible(true);
+            }}
+          >
             <Image source={{ uri: item.image }} style={styles.image} />
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.team}>{item.team}</Text>
-          </View>
+          </TouchableOpacity>
         )}
       />
+
+      <Modal visible={modalVisible} animationType="slide">
+        <ScrollView style={styles.modalContent}>
+          <TouchableOpacity onPress={() => setModalVisible(false)}>
+            <Text style={{ color: 'red', fontSize: 16 }}>Close</Text>
+          </TouchableOpacity>
+
+          {selectedPlayer && (
+            <>
+              <Text style={styles.modalTitle}>{selectedPlayer.name}</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Opponent (optional)"
+                placeholderTextColor="#aaa"
+                value={opponent}
+                onChangeText={(text) => {
+                  setOpponent(text);
+                  setUseOpponent(!!text);
+                }}
+              />
+
+              <View style={styles.buttonRow}>
+                {statOptions.map((stat) => (
+                  <TouchableOpacity
+                    key={stat}
+                    style={[
+                      styles.statButton,
+                      selectedStat === stat && styles.selectedButton,
+                    ]}
+                    onPress={() => fetchStatData(stat)}
+                  >
+                    <Text style={styles.statButtonText}>{stat}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View style={styles.graphContainer}>
+                {statValues.map((val, index) => {
+                  const barHeight = (val / maxStat) * 180;
+                  return (
+                    <View key={index} style={styles.barWrapper}>
+                      <View style={[styles.bar, { height: barHeight }]} />
+                      <Text style={styles.pointsText}>{val}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </>
+          )}
+        </ScrollView>
+      </Modal>
     </View>
   );
 }
@@ -97,5 +193,59 @@ const styles = StyleSheet.create({
     color: '#aaa',
     fontSize: 12,
     textAlign: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#010812',
+    padding: 16,
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  input: {
+    backgroundColor: '#222',
+    color: 'white',
+    padding: 10,
+    marginBottom: 12,
+    borderRadius: 8,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  statButton: {
+    padding: 10,
+    backgroundColor: '#444',
+    borderRadius: 8,
+    margin: 4,
+  },
+  selectedButton: {
+    backgroundColor: '#3f51b5',
+  },
+  statButtonText: {
+    color: 'white',
+  },
+  graphContainer: {
+    height: 200,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginHorizontal: 16,
+  },
+  barWrapper: {
+    alignItems: 'center',
+    width: 20,
+    marginHorizontal: 4,
+  },
+  bar: {
+    width: 20,
+    backgroundColor: 'teal',
+  },
+  pointsText: {
+    color: 'white',
+    fontSize: 10,
   },
 });

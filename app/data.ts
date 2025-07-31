@@ -16,35 +16,37 @@ export async function getLast5Matchups(team: string, opponent: string) {
   return data;
 }
 
-export async function getLast10Stats(player: string, stat: string): Promise<number[] | null>{
+export async function getLast10Stats(player: string, stat: string): Promise<number[] | null> {
   const { data, error } = await supabase
     .from('player_data')
     .select('*')
     .eq('PLAYER_NAME', player)
-    .eq(stat, stat)
-    .order('Date', { ascending: false })
+    .order('GAME_DATE', { ascending: false })
     .limit(10)
-    
+
   if (error) {
-    alert(error)
+    alert(error.message);
     return null;
   }
-  return data;
+  if (!data) return null;
+  const values = data.map((row: any) => row[stat]);
+  alert(values);
+  return values;
 }
-
 export async function getLast5StatsAgainst(player: string, stat: string, opp: string): Promise<number[] | null>{
   const { data, error } = await supabase
     .from('player_data')
-    .select('*')
+    .select(`GAME_DATE, ${stat}` as const)
     .eq('PLAYER_NAME', player)
-    .eq('MATCHUP', opp)
-    .eq(stat, stat)
-    .order('Date', { ascending: false })
-    .limit(10)
+    .eq('OPPONENT', opp)
+    .order('GAME_DATE', { ascending: false })
+    .limit(5)
     
   if (error) {
     alert(error)
     return null;
   }
-  return data;
+  if(!data) return null;
+  const values = data.map((row: any) => row[stat]);
+  return values;
 }

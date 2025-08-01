@@ -30,7 +30,6 @@ export async function getLast10Stats(player: string, stat: string): Promise<numb
   }
   if (!data) return null;
   const values = data.map((row: any) => row[stat]);
-  alert(values);
   return values;
 }
 export async function getLast5StatsAgainst(player: string, stat: string, opp: string): Promise<number[] | null>{

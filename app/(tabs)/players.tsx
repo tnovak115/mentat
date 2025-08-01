@@ -12,6 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { getLast10Stats, getLast5StatsAgainst } from '../data';
+import { Picker } from '@react-native-picker/picker';
 
 const players = [
   {
@@ -55,23 +56,30 @@ export default function PlayersScreen() {
   const [selectedPlayer, setSelectedPlayer] = useState<typeof players[0] | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [useOpponent, setUseOpponent] = useState(false);
-  const [opponent, setOpponent] = useState('');
+  const [opponent, setOpponent] = useState<string>('');
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
   const [statValues, setStatValues] = useState<number[]>([]);
   const [maxStat, setMaxStat] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
   const statOptions = ['PTS', 'REB', 'OREB', 'DREB', 'AST', 'FGM', 'FGA', 'STL', 'BLK', 'FG3M', 'FG3A'];
+  const teams = [
+    'ATL', 'BOS', 'BRK', 'CHI', 'CLE', 'DAL', 'DEN', 'DET',
+    'GSW', 'HOU', 'IND', 'LAC', 'LAL', 'MEM', 'MIA', 'MIL', 'MIN',
+    'NOP', 'NYK', 'OKC', 'ORL', 'PHI', 'PHO', 'POR', 'SAC', 'SAS',
+    'TOR', 'UTA', 'WAS'
+  ];
 
   const fetchStatData = async (stat: string) => {
     if (!selectedPlayer) return;
     setLoading(true);
     setSelectedStat(stat);
 
-    const values = await (useOpponent
-      ? getLast5StatsAgainst(selectedPlayer.name, stat, opponent)
-      : getLast10Stats(selectedPlayer.name, stat)) ?? [];
-
+    const values = await (
+      opponent
+        ? getLast5StatsAgainst(selectedPlayer.name, stat, opponent)
+        : getLast10Stats(selectedPlayer.name, stat)
+    ) ?? [];
     setStatValues(values);
     setMaxStat(Math.max(...values, 1));
     setLoading(false);
@@ -109,16 +117,19 @@ export default function PlayersScreen() {
             <>
               <Text style={styles.modalTitle}>{selectedPlayer.name}</Text>
 
-              <TextInput
-                style={styles.input}
-                placeholder="Opponent (optional)"
-                placeholderTextColor="#aaa"
-                value={opponent}
-                onChangeText={(text) => {
-                  setOpponent(text);
-                  setUseOpponent(!!text);
-                }}
-              />
+              <Text style={styles.label}>Select Opponent:</Text>
+              <View style={styles.pickerWrapper}>
+                <Picker
+                  selectedValue={opponent}
+                  onValueChange={(itemValue) => setOpponent(itemValue)}
+                  style={styles.picker}
+                  dropdownIconColor="#fff"
+                >
+                  {teams.map((team) => (
+                    <Picker.Item label={team} value={team} key={team} />
+                  ))}
+                </Picker>
+              </View>
 
               <View style={styles.buttonRow}>
                 {statOptions.map((stat) => (
@@ -247,5 +258,24 @@ const styles = StyleSheet.create({
   pointsText: {
     color: 'white',
     fontSize: 10,
+  },
+  label: {
+    color: '#fff',
+    fontSize: 14,
+    marginTop: 12,
+    marginBottom: 4,
+  },
+
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: '#555',
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#1c1c1c',
+  },
+
+  picker: {
+    height: 44,
+    color: '#3f51b5',
   },
 });

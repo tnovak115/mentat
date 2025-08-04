@@ -1,97 +1,186 @@
-import { Text, View, StyleSheet, FlatList, Image } from 'react-native';
-import { styles } from '../styles';
-const arbitrageData = [
-  {
-    id: '1',
-    teams: ['Lions', 'Bears'],
-    odds: {
-      DraftKings: { Lions: "2.1", Bears: "1.8" },
-      FanDuel: { Lions: "1.95", Bears: "2.05" },
-    },
-  },
-  {
-    id: '2',
-    teams: ['Rams', 'Chargers'],
-    odds: {
-      BetUS: { Rams: "1.5", Chargers: "1.3" },
-      FanDuel: { Rams: "1.55", Chargers: "2.4" },
-    },
-  },
-  {
-    id: '3',
-    teams: ['Ravens', 'Dolphins'],
-    odds: {
-      DraftKings: { Ravens: "1.7", Dolphins: "2.2" },
-      BetMGM: { Ravens: "1.45", Dolphins: "2.35" },
-    },
-  },
-  {
-    id: '4',
-    teams: ['Cowboys', 'Bills'],
-    odds: {
-      Caesars: { Cowboys: "2.8", Bills: "1.4" },
-      bet365: { Cowboys: "1.35", Bills: "2.55" },
-    },
-  },
-  {
-    id: '5',
-    teams: ['Commanders', 'Chiefs'],
-    odds: {
-      Fantatics: {Commanders: "3.1", Chiefs: "1.2"},
-      BetMGM: {Commanders: "1.4", Chiefs: "2.4"},
-    },
-  },
-];
-export default function PropScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Arbitrage Opportunities</Text>
-      <FlatList
-        data={arbitrageData}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item }) => {
-          const [team1, team2] = item.teams;
-
-          return (
-            <View style={[styles.card, styles.arbCard]}>
-              <View style={styles.row}>
-                {/* Left Column: Teams */}
-                <View style={styles.teamsColumn}>
-                  {[team1, team2].map((team, index) => (
-                    <View key={index} style={styles.teamRow}>
-                      <Image
-                        source={{ uri: 'https://via.placeholder.com/40' }}
-                        style={styles.teamLogo}
-                      />
-                      <Text style={styles.teamName}>{team}</Text>
-                    </View>
-                  ))}
-                </View>
-
-                {/* Right Column: Odds from Sites */}
-                <View style={styles.oddsColumn}>
-                  {[team1, team2].map((team, index) => (
-                    <View key={index} style={styles.oddsRow}>
-                      {Object.entries(item.odds).map(([site, siteOdds]) => (
-                        <View key={site} style={styles.siteOdds}>
-                          <Image
-                            source={{ uri: 'https://via.placeholder.com/24x24' }}
-                            style={styles.siteLogo}
-                          />
-                          <Text style={styles.oddsText}>
-                            {siteOdds[team as keyof typeof siteOdds] ?? '-'}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </View>
-          );
-        }}
-      />
-    </View>
-  );
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { Svg, Path, G } from 'react-native-svg';
+import { getLast10Stats, getLast5StatsAgainst } from '../data';
+interface PropData {
+  player: string;
+  team: string;
+  date: string;
+  stat: string;
+  line: number;
+  site: string;
+  opponent: string;
+  hitLast10: number;
+  hitLast5vsOpponent: number;
 }
+
+const mockProps: PropData[] = [
+  {
+    player: 'LeBron James',
+    team: 'LAL',
+    date: '2025-10-15',
+    stat: 'PTS',
+    line: 27.5,
+    site: 'DraftKings',
+    opponent: 'GSW',
+    hitLast10: 9,
+    hitLast5vsOpponent: 4,
+  },
+  {
+    player: 'Rui Hachimura',
+    team: 'LAL',
+    date: '2025-10-15',
+    stat: 'REB',
+    line: 11.5,
+    site: 'FanDuel',
+    opponent: 'GSW',
+    hitLast10: 3,
+    hitLast5vsOpponent: 1,
+  },
+  {
+    player: 'D\'Angelo Russel',
+    team: 'LAL',
+    date: '2025-10-15',
+    stat: 'AST',
+    line: 6.5,
+    site: 'PrizePicks',
+    opponent: 'GSW',
+    hitLast10: 6,
+    hitLast5vsOpponent: 2,
+  },
+  {
+    player: 'Austin Reaves',
+    team: 'LAL',
+    date: '2025-10-15',
+    stat: 'FGM',
+    line: 12.5,
+    site: 'FanDuel',
+    opponent: 'GSW',
+    hitLast10: 8,
+    hitLast5vsOpponent: 2,
+  },
+  {
+    player: 'Jarred Vanderbilt',
+    team: 'LAL',
+    date: '2025-10-15',
+    stat: 'BLK',
+    line: 0.5,
+    site: 'PrizePicks',
+    opponent: 'GSW',
+    hitLast10: 7,
+    hitLast5vsOpponent: 3,
+  }
+];
+
+const PropsScreen = () => {
+  const [sortedProps, setSortedProps] = useState<PropData[]>([]);
+
+  useEffect(() => {
+    const fetchAndRank = async () => {
+      const enrichedProps: PropData[] = await Promise.all(
+        mockProps.map(async (prop) => {
+          const last10Stats = await getLast10Stats(prop.player, prop.stat);
+          const last5Stats = await getLast5StatsAgainst(prop.player, prop.stat, prop.opponent);
+
+          const hitLast10 = last10Stats?.filter((val) => val >= prop.line).length || 0;
+          const hitLast5vsOpponent = last5Stats?.filter((val) => val >= prop.line).length || 0;
+
+          return {
+            ...prop,
+            hitLast10,
+            hitLast5vsOpponent,
+          };
+        })
+      );
+
+      const ranked = enrichedProps.sort((a, b) => {
+        const score = (p: PropData) => (p.hitLast10 / 10) * 0.6 + (p.hitLast5vsOpponent / 5) * 0.4;
+        return score(b) - score(a);
+      });
+
+      setSortedProps(ranked);
+    };
+
+    fetchAndRank();
+  }, []);
+
+  const renderPie = (hit: number, total: number) => {
+    const percent = hit / total;
+    const angle = percent * 180;
+    const largeArcFlag = angle > 180 ? 1 : 0;
+    const x = 100 + 100 * Math.cos((Math.PI * (180 - angle)) / 180);
+    const y = 100 - 100 * Math.sin((Math.PI * (180 - angle)) / 180);
+
+    return (
+      <Svg width={200} height={100} viewBox="0 0 200 100">
+        <G>
+          <Path d="M0,100 A100,100 0 0,1 200,100" fill="#444" />
+          <Path
+            d={`M0,100 A100,100 0 ${largeArcFlag},1 ${x},${y} L100,100 Z`}
+            fill={percent >= 0.7 ? 'green' : percent >= 0.4 ? 'orange' : 'red'}
+          />
+        </G>
+      </Svg>
+    );
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.header}>Prop Bets</Text>
+      {sortedProps.map((prop, index) => (
+        <View key={index} style={styles.propCard}>
+          <Text style={styles.player}>{prop.player} ({prop.team})</Text>
+          <Text style={styles.text}>{prop.date} | {prop.site}</Text>
+          <Text style={styles.text}>{prop.stat} Line: {prop.line}</Text>
+          <Text style={styles.text}>Hits: {prop.hitLast10}/10 | {prop.hitLast5vsOpponent}/5 vs {prop.opponent}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 }}>
+            <View style={{ alignItems: 'center' }}>
+              {renderPie(prop.hitLast10, 10)}
+              <Text style={styles.pieLabel}>Last 10</Text>
+            </View>
+            <View style={{ alignItems: 'center' }}>
+              {renderPie(prop.hitLast5vsOpponent, 5)}
+              <Text style={styles.pieLabel}>Last 5 vs {prop.opponent}</Text>
+            </View>
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    backgroundColor: '#010812',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: 'white',
+  },
+  propCard: {
+    borderWidth: 1,
+    borderColor: '#555',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    backgroundColor: '#1c1c1c',
+  },
+  player: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: 'white',
+  },
+  text: {
+    color: 'white',
+  },
+  pieLabel: {
+    color: 'white',
+    fontSize: 12,
+    marginTop: 4,
+  },
+});
+
+export default PropsScreen;

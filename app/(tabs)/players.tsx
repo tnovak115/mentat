@@ -23,7 +23,7 @@ const players = [
   },
   {
     id: '2',
-    name: 'Anthony Davis',
+    name: 'Rui Hachimura',
     team: 'Lakers',
     image: 'https://via.placeholder.com/100x100',
   },
